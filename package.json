@@ -4,6 +4,7 @@
   "description": "This tool will allow users a way to share their passwords in a very secure manner.",
   "main": "app.js",
   "scripts": {
+    "start": "node src/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
