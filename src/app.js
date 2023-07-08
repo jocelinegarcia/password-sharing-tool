@@ -2,7 +2,6 @@ const express = require('express');
 const knex = require('knex');
 const UserModel = require('../models/users');
 
-
 const app = express();
 
 const db = knex({
@@ -13,7 +12,7 @@ const db = knex({
     migrations: {
         tableName: 'migrations'
     },
-    useNullAsDefault: true, // Add this line
+    useNullAsDefault: true, 
 });
 const userModel = new UserModel(db);
 app.use(express.json()); // Parse JSON bodies
