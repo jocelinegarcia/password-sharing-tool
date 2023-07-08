@@ -31,7 +31,7 @@ app.post('/signup', async (req, res) => {
         encryptionKey,
       });
   
-      res.send(`User created with ID: ${userId}`);
+      res.send(`User created successfully`);
     } catch (error) {
       console.error('Signup error:', error);
       res.status(500).send('Error creating user');
