@@ -6,7 +6,7 @@ exports.up = function(knex) {
   return knex.schema.createTable('users', table => {
     table.increments('id');
     table.string('name', 255).notNullable();
-    table.string('email', 255).notNullable();
+    table.string('email', 255).notNullable().unique; //everyone has unique emails
     table.string('password', 255).notNullable();
     table.string('password_encryption_key', 255).notNullable();
     table.datetime('deleted_at').nullable();

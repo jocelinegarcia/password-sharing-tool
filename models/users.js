@@ -37,41 +37,44 @@ class UserModel {
       const hashedEncryptionKey = await this.hashStr(encryptionKey); //hash encryption key
 
       
-      const [userId] = await this.usersTable().insert({
-        name,
-        email,
-        password: hashedPassword,
-        password_encryption_key: hashedEncryptionKey,
-      }, 'id');
+      const [result] = await this.usersTable().insert(
+        {
+          name,
+          email,
+          password: hashedPassword,
+          password_encryption_key: hashedEncryptionKey,
+        },
+        "id"
+      );
 
-      return userId;
+      return result.id;
     } catch (error) {
-      console.error('Error creating user:', error);
+      throw error; // propogate error further, so route handler can catch it
     }
   }
 
-  async logIn(email, password){
-    try{
-        // Check if the user with the provided email exists
+  async logIn(email, password) {
+    try {
+      // Check if the user with the provided email exists
       const user = await this.usersTable().where({ email }).first();
       if (!user) {
-        throw new Error('Invalid email or password');
+        throw new Error(`No user associated with the email ${email}`);
       }
       // Compare the provided password with the hashed password from the database
       const isPasswordValid = await bcrypt.compare(password, user.password);
 
       if (!isPasswordValid) {
-        throw new Error('Invalid email or password');
+        throw new Error("Invalid password");
       }
+
+      //console.log(user);
       //generates jwt token
       const token = await this.getJwt({ id: user.id });
       return token;
-
     } catch (error) {
-        throw new Error('Login failed');
+      throw error;
     }
   }
-
 }
 
 module.exports = UserModel;
