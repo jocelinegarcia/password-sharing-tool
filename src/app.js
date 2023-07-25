@@ -2,13 +2,24 @@ require("dotenv").config();
 const express = require("express");
 const knex = require("knex");
 const UserModel = require("../models/users");
+const UserPasswords = require("../models/user_passwords");
 const knexConfig = require("../knexfile");
 const env = process.env.NODE_ENV || "development";
 const app = express();
 const db = knex(knexConfig[env]); 
 
 const userModel = new UserModel(db);
-app.use(express.json()); // Parse JSON bodies
+app.use(express.json()); 
+
+const port = 8000;
+app.listen(port,()=> {
+console.log('listen port 8000');
+});
+
+app.get('/', (req,res)=>{
+  res.status(200).json({message: "Hello"});
+    });
+
 
 // Signup
 app.post("/signup", async (req, res) => {
@@ -24,10 +35,10 @@ app.post("/signup", async (req, res) => {
       encryptionKey,
     });
 
-    res.send(`User created with ID: ${userId}`);
+    res.status(200).json({ message: `User created with ID: ${userId}` });
   } catch (error) {
     console.error("Signup error:", error);
-    res.status(500).send("Error creating user");
+    res.status(500).json({ error: "Error creating user" });
   }
 });
 
@@ -40,19 +51,60 @@ app.post("/login", async (req, res) => {
     // Log in the user using the UserModel
     const token = await userModel.logIn(email, password);
 
-    res.send(`Logged in. Token: ${token}`);
+    res.status(200).json({ message: `Logged in. Token: ${token}` });
   } catch (error) {
     console.error("Login error:", error);
-    res.status(401).send("Invalid email or password");
+    res.status(401).json({ error: "Invalid email or password" });
   }
 });
 
-   
-const port = 8000;
-app.listen(port,()=> {
-console.log('listen port 8000');
+// Save Password endpoint to store user passwords
+app.post("/save-password", async (req, res) => {
+  try {
+    req.body.user_id = req.auth.id; 
+    const obj = await new UserPasswords(db).create(req.body);
+
+    if (!obj) {
+      return res.status(403).json({ message: 'Invalid key, authentication fail' }); // Respond with an error message if authentication fails
+    }
+
+    res.json({ message: 'done', status: 200 }); // Respond with a success message
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ message: 'Internal Service Error' }); // Respond with an error message for internal server errors
+  }
 });
 
-app.get('/', (req,res)=>{
-    res.send('Hello World');
-    });
+// List Password endpoint to retrieve user passwords
+app.post("/list-passwords", async (req, res) => {
+  try {
+    req.body.user_id = req.auth.id; // Assuming authentication middleware adds an "auth" object containing the user ID to the request
+    const result = await new UserPasswords(db).list(req.body);
+
+    if (!result) {
+      return res.status(403).json({ message: 'Invalid' }); // Respond with an error message if password retrieval fails
+    }
+
+    res.json({ message: 'success', data: result, status: 200 }); // Respond with a success message and the retrieved password data
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ message: 'Internal Service Error' }); // Respond with an error message for internal server errors
+  }
+});
+
+// List Shared Passwords endpoint to retrieve shared passwords
+app.post("/list-shared-passwords", async (req, res) => {
+  try {
+    req.body.user_id = req.auth.id; 
+    const obj = await new UserPasswords(db).listShared(req.body);
+
+    if (!obj) {
+      return res.status(403).json({ message: 'Invalid' }); 
+    }
+
+    res.json({ message: 'success', data: obj, status: 200 }); 
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ message: 'Internal Service Error' }); 
+  }
+});
