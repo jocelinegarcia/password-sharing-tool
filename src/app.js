@@ -1,15 +1,23 @@
 require("dotenv").config();
 const express = require("express");
+const app = express();
+const { expressjwt} =  require("express-jwt");
 const knex = require("knex");
 const UserModel = require("../models/users");
 const UserPasswords = require("../models/user_passwords");
 const knexConfig = require("../knexfile");
 const env = process.env.NODE_ENV || "development";
-const app = express();
 const db = knex(knexConfig[env]); 
 
 const userModel = new UserModel(db);
-app.use(express.json()); 
+
+app.use(express.json());
+app.use(
+  expressjwt({
+    secret: process.env.JWT_SECRET,
+    algorithms: ["HS256"],
+  }).unless({ path: ["/login", "/signup", "/"] })
+);
 
 const port = 8000;
 app.listen(port,()=> {
@@ -78,17 +86,17 @@ app.post("/save-password", async (req, res) => {
 // List Password endpoint to retrieve user passwords
 app.post("/list-passwords", async (req, res) => {
   try {
-    req.body.user_id = req.auth.id; // Assuming authentication middleware adds an "auth" object containing the user ID to the request
+    req.body.user_id = req.auth.id; 
     const result = await new UserPasswords(db).list(req.body);
 
     if (!result) {
-      return res.status(403).json({ message: 'Invalid' }); // Respond with an error message if password retrieval fails
+      return res.status(403).json({ message: 'Invalid' }); 
     }
 
-    res.json({ message: 'success', data: result, status: 200 }); // Respond with a success message and the retrieved password data
+    res.json({ message: 'success', data: result, status: 200 }); 
   } catch (e) {
     console.error(e);
-    res.status(500).json({ message: 'Internal Service Error' }); // Respond with an error message for internal server errors
+    res.status(500).json({ message: 'Internal Service Error' }); 
   }
 });
 
