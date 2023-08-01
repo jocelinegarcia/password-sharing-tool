@@ -78,10 +78,10 @@ app.post("/save-password", async (req, res) => {
       return res.status(403).json({ message: 'Invalid key, authentication fail' }); // Respond with an error message if authentication fails
     }
 
-    res.json({ message: 'done', status: 200 }); // Respond with a success message
+    res.json({ message: 'done', status: 200 }); 
   } catch (e) {
     console.error(e);
-    res.status(500).json({ message: 'Internal Service Error' }); // Respond with an error message for internal server errors
+    res.status(500).json({ message: 'Internal Service Error' }); 
   }
 });
 

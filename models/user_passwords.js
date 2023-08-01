@@ -28,8 +28,8 @@ class UserPasswords{
 
         try{
             const row = {
-                //user_id: obj.user_id,
-               // shared_by_user_id: obj.shared_by_user_id,
+                user_id: obj.user_id,
+                shared_by_user_id: obj.shared_by_user_id,
                 password_label: obj.password_label,
                 url: obj.url,
                 login: obj.login,
@@ -66,8 +66,6 @@ class UserPasswords{
     async validateEncKey(key, userId) {
         const userModel = new UserModel(this.db); 
         const userObj = await userModel.get(userId);
-       // console.log('key:', key);
-      //console.log('userObj.password_encryption_key:', userObj.password_encryption_key);
         return await bcrypt.compare(key, userObj.password_encryption_key);
       }
       
