@@ -1,12 +1,14 @@
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
-const { users } = require('./users.js');
+const UserModel = require('./users.js');
+
+
 
 //responsible for managing user password records in a database
 class UserPasswords{
     constructor(db) {
         this.db = db;
-        this.usersTable = () => db('user_passwords');
+        this.usersTable = () => db('users_passwords');
     }
     //This method creates a new user password record in the database.
     async createPasswordRecord(obj){
@@ -26,14 +28,14 @@ class UserPasswords{
 
         try{
             const row = {
-                user_id: obj.user_id,
-                shared_by_user_id: obj.shared_by_user_id,
+                //user_id: obj.user_id,
+               // shared_by_user_id: obj.shared_by_user_id,
                 password_label: obj.password_label,
                 url: obj.url,
                 login: obj.login,
                 password: obj.password,
             };
-        const [insertedRowId] = await db('user_passwords').insert(row, 'id');
+        const [insertedRowId] = await db('users_passwords').insert(row, 'id');
         return insertedRowId;
         } catch(error){
             throw error;
@@ -61,11 +63,14 @@ class UserPasswords{
         return decrypted;
     }
 
-    async validateEncKey(key, userId){
-        const userModel = new users(this.db);
+    async validateEncKey(key, userId) {
+        const userModel = new UserModel(this.db); 
         const userObj = await userModel.get(userId);
+       // console.log('key:', key);
+      //console.log('userObj.password_encryption_key:', userObj.password_encryption_key);
         return await bcrypt.compare(key, userObj.password_encryption_key);
-    }
+      }
+      
     
     async list(obj) {
       try {

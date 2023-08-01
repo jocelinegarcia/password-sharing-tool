@@ -75,6 +75,16 @@ class UserModel {
       throw error;
     }
   }
+  async get(id) {
+    try {
+      const { usersTable } = this;
+      return usersTable()(this.db).where('id', id).first();
+    } catch (error) {
+      throw error;
+    }
+  }
+  
+  
 }
 
 module.exports = UserModel;

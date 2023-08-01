@@ -59,7 +59,7 @@ app.post("/login", async (req, res) => {
     // Log in the user using the UserModel
     const token = await userModel.logIn(email, password);
 
-    res.status(200).json({ message: `Logged in. Token: ${token}` });
+    res.status(200).json({ token: token });
   } catch (error) {
     console.error("Login error:", error);
     res.status(401).json({ error: "Invalid email or password" });
@@ -69,8 +69,10 @@ app.post("/login", async (req, res) => {
 // Save Password endpoint to store user passwords
 app.post("/save-password", async (req, res) => {
   try {
-    req.body.user_id = req.auth.id; 
-    const obj = await new UserPasswords(db).create(req.body);
+    req.body.userId = req.auth.id; 
+    const userPasswords = new UserPasswords(db);
+    const obj = await userPasswords.createPasswordRecord(req.body);
+
 
     if (!obj) {
       return res.status(403).json({ message: 'Invalid key, authentication fail' }); // Respond with an error message if authentication fails
@@ -116,3 +118,8 @@ app.post("/list-shared-passwords", async (req, res) => {
     res.status(500).json({ message: 'Internal Service Error' }); 
   }
 });
+
+/*"engines": {
+    "node": ">=16",
+    "npm": ">=7"
+  }*/
