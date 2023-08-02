@@ -3,7 +3,7 @@
  * @returns { Promise<void> }
  */
 exports.up = function(knex) {
-  return knex.schema.createTable('users', table => {
+  return knex.schema.createTableIfNotExists('users', table => {
     table.increments('id');
     table.string('name', 255).notNullable();
     table.string('email', 255).notNullable().unique; //everyone has unique emails
@@ -12,7 +12,7 @@ exports.up = function(knex) {
     table.datetime('deleted_at').nullable();
     table.timestamps(true, true);
   })
-  .createTable('users_passwords', table =>{
+  .createTableIfNotExists('users_passwords', table =>{
     table.increments('id');
     table.integer('user_id', 11).notNullable();
     table.integer('shared_by_user_id', 11).nullable();
