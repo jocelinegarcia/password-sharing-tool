@@ -35,8 +35,6 @@ class UserModel {
       const { name, email, password, encryptionKey } = obj;
       const hashedPassword = await this.hashStr(password); //hash users password
       const hashedEncryptionKey = await this.hashStr(encryptionKey); //hash encryption key
-
-      
       const [result] = await this.usersTable().insert(
         {
           name,
@@ -44,9 +42,7 @@ class UserModel {
           password: hashedPassword,
           password_encryption_key: hashedEncryptionKey,
         },
-        "id"
       );
-
       return result.id;
     } catch (error) {
       throw error; // propogate error further, so route handler can catch it
@@ -76,15 +72,15 @@ class UserModel {
     }
   }
   async get(id) {
+    console.log(id);
     try {
-      const { usersTable } = this;
-      return usersTable()(this.db).where('id', id).first();
+      const user = await this.usersTable().where({id: id}).first();
+      return user;
     } catch (error) {
       throw error;
     }
   }
-  
-  
+   
 }
 
 module.exports = UserModel;

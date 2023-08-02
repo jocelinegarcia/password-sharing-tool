@@ -11,6 +11,7 @@ const db = knex(knexConfig[env]);
 
 const userModel = new UserModel(db);
 
+
 app.use(express.json());
 app.use(
   expressjwt({
@@ -69,7 +70,7 @@ app.post("/login", async (req, res) => {
 // Save Password endpoint to store user passwords
 app.post("/save-password", async (req, res) => {
   try {
-    req.body.userId = req.auth.id; 
+    req.body.user_id = req.auth.id; 
     const userPasswords = new UserPasswords(db);
     const obj = await userPasswords.createPasswordRecord(req.body);
 
@@ -118,8 +119,3 @@ app.post("/list-shared-passwords", async (req, res) => {
     res.status(500).json({ message: 'Internal Service Error' }); 
   }
 });
-
-/*"engines": {
-    "node": ">=16",
-    "npm": ">=7"
-  }*/

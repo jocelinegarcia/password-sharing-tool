@@ -12,7 +12,7 @@ class UserPasswords{
     }
     //This method creates a new user password record in the database.
     async createPasswordRecord(obj){
-        const authenticated  = await this.validateEncKey(obj.encKey, obj.user_id);
+        const authenticated  = await this.validateEncKey(obj.encKey, obj.user_id);//
         if (!authenticated) {
             return false;
         }
@@ -35,7 +35,7 @@ class UserPasswords{
                 login: obj.login,
                 password: obj.password,
             };
-        const [insertedRowId] = await db('users_passwords').insert(row, 'id');
+        const [insertedRowId] = await db('users_passwords').insert(row);
         return insertedRowId;
         } catch(error){
             throw error;
