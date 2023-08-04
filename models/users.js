@@ -43,7 +43,8 @@ class UserModel {
           password_encryption_key: hashedEncryptionKey,
         },
       );
-      return result.id;
+      return result;
+      
     } catch (error) {
       throw error; // propogate error further, so route handler can catch it
     }
