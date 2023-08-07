@@ -76,7 +76,7 @@ class UserPasswords{
           const results = await this.usersTable()
               .where('user_id', user_id)
               .whereNull('shared_by_user_id')
-              .select('user_id','login', 'password');
+              .select('*');
 
             return results.map((row) => {
                 row.login = this.decrypt(row.login, encKey);
