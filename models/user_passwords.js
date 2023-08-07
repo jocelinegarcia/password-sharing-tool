@@ -76,12 +76,13 @@ class UserPasswords{
           const results = await this.usersTable()
               .where('user_id', user_id)
               .whereNull('shared_by_user_id')
-              .select('login', 'password');
+              .select('user_id','login', 'password');
 
-          return results.map(({ login, password }) => ({
-              login: this.decrypt(login, encKey),
-              password: this.decrypt(password, encKey)
-          }));
+            return results.map((row) => {
+                row.login = this.decrypt(row.login, encKey);
+                row.password = this.decrypt(row.password, encKey);
+                return row;
+              });
       } catch (error) {
           throw error;
       }
