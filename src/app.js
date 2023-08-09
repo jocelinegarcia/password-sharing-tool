@@ -103,6 +103,44 @@ app.post("/list-passwords", async (req, res) => {
   }
 });
 
+// Share Password endpoint to share passwords with other users
+app.post('/share-password', async (req, res) => {
+  try {
+    const passwordId = req.body.passwordId;
+    const encKey = req.body.encKey;
+    const email = req.body.inviteEmail;
+
+    const inviteUser = await new UserModel(db).getByEmail(email);
+
+    if (!inviteUser) {
+      return res.status(400).json({ message: 'Unable to share: User does not exist' });
+    }
+
+    const passwordRow = await new UserPasswords(db).getPasswordById(passwordId, encKey);
+
+    if (!passwordRow) {
+      return res.status(403).json({ message: 'Invalid Password Id' });
+    }
+
+    const userPasswords = new UserPasswords(db);
+
+    await userPasswords.actualPassword({
+      user_id: inviteUser.id,
+      shared_by_user_id: req.auth.id,
+      password_label: passwordRow.password_label,
+      url: passwordRow.url,
+      encKey: process.env.SYS_ENC_KEY,
+      login: userPasswords.encrypt(passwordRow.login, process.env['SYS_ENC_KEY']),
+      password: userPasswords.encrypt(passwordRow.password, process.env['SYS_ENC_KEY'])
+    });
+
+    res.json({ message: 'done', status: 200 });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ message: 'internal_server_error' });
+  }
+}); 
+
 // List Shared Passwords endpoint to retrieve shared passwords
 app.post("/list-shared-passwords", async (req, res) => {
   try {
@@ -113,9 +151,27 @@ app.post("/list-shared-passwords", async (req, res) => {
       return res.status(403).json({ message: 'Invalid' }); 
     }
 
-    res.json({ message: 'success', data: obj, status: 200 }); 
+    res.json({ message: 'Success', data: obj, status: 200 }); 
   } catch (e) {
     console.error(e);
     res.status(500).json({ message: 'Internal Service Error' }); 
   }
 });
+
+app.delete('/user-password/:id', async (req, res) => {
+  try {
+      req.body.user_id = req.auth.id;
+      const numDeleted = await new UserPasswords(db).delete({
+          user_id: req.auth.id,
+          user_password_id: req.params.id
+      });
+      if (!numDeleted && numDeleted !== 0) {
+          return res.status(403).json({message: 'Invalid key'});
+      }
+      res.json({message: 'success', data: `Deleted ${numDeleted} record(s)`, status: 200});
+  } catch (e) {
+      console.error(e);
+      res.status(500).json({message: 'internal_server_error'})
+  }
+});
+

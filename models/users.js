@@ -64,7 +64,6 @@ class UserModel {
         throw new Error("Invalid password");
       }
 
-      //console.log(user);
       //generates jwt token
       const token = await this.getJwt({ id: user.id });
       return token;
@@ -76,6 +75,15 @@ class UserModel {
     console.log(id);
     try {
       const user = await this.usersTable().where({id: id}).first();
+      return user;
+    } catch (error) {
+      throw error;
+    }
+  }
+  
+  async getByEmail(email) {
+    try {
+      const user = await this.usersTable().where({email}).first();
       return user;
     } catch (error) {
       throw error;

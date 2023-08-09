@@ -36,6 +36,7 @@ class UserPasswords{
                 password: obj.password,
             };
         const [insertedRowId] = await db('users_passwords').insert(row);
+
         return insertedRowId;
         } catch(error){
             throw error;
@@ -91,13 +92,15 @@ class UserPasswords{
     
     async listShared(obj) {
       try {
-          const { encKey, user_id } = obj;
+          const {user_id } = obj;
           const results = await this.usersTable()
-              .where('shared_by_user_id', user_id);
+              .where('user_id', user_id)
+              .whereNotNull('shared_by_user_id');
 
           return results.map((row) => {
-              row.login = this.decrypt(row.login, encKey);
-              row.password = this.decrypt(row.password, encKey);
+              row.login = this.decrypt(row.login, process.env.SYS_ENC_KEY);
+              row.password = this.decrypt(row.password, process.env.SYS_ENC_KEY);
+              
               return row;
           });
       } catch (error) {
